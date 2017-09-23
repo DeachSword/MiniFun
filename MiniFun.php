@@ -7,12 +7,15 @@ if(!empty($_GET['name'])){
         Minecraft::Skin($_GET['name']);
     }
 }
+if(!empty($_GET["tra"])){
+Translation::tra($_GET["tra"]);
+}
 
 
 class MiniFun{
 
     public $Project="LastStarduts";
-    public $Version="5.0.1";
+    public $Version="5.1.7";
 
     public function Info(){
         return "DeachSword © 2016-".date('Y')." 『".$this->Version()."』";
@@ -24,10 +27,13 @@ class MiniFun{
 
     public function Shooting($dead, $killer=null, $tool=null){
         /***
-        Version: 1.1.0
+        Version: 2.0.0 beta
         Author: 隱歿
         Protocol: MiniFun::Shooting()
         ***/
+        
+        $rand=rand(1,10);
+        
         if(!empty($dead)){
             if(!empty($killer)){
                 if(!empty($tool)){
@@ -302,7 +308,7 @@ class MiniFun{
 
     public static function Probability($probability=array(80,5,3,1), $value=array("非洲","歐洲","大佬","巨佬"), $percent=100, $num=5, $m=0){
         /***
-        Version: 1.0.0.1
+        Version: 1.0.0.63
         Author: 隱歿
         Protocol: MiniFun::Probability()
         ***/
@@ -310,9 +316,16 @@ class MiniFun{
         $score = array();
         $out = null;
 
+        if($num>30){
+            return "Please do not use more than 30";
+        }
+
         if(!empty($probability&&$value&&$percent&&$num)){
             while(count($str) != $percent){
                 for($s = 0; $s < count($value); $s++){
+                    if(!is_numeric($probability[$s])){
+                        return $probability[$s]." 必須是一個數字！";
+                    }
                     if(count($str) < $percent){
                         $r = rand(0, 99999);
                         while(strlen($r) != 5){
@@ -436,20 +449,23 @@ class GirlsFrontline{
         /***
         Version: 1.0.1
         Author: 夜樱
+            Revise: 隱歿
+            Version: 1.1
         Protocol: GirlsFrontline::GirlLevel()
         ***/
         $minifun = "https://raw.githubusercontent.com/DeachSword/MiniFun/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%B7%9A/Girls";
-        @$GirlsFrontline=json_decode(file_get_contents("./Girls"),true);
-        $level=null;
-        $GirlsFrontline = !empty($GirlsFrontline) ? $GirlsFrontline : json_decode(file_get_contents($minifun),true);
-
-        while($fruit_name = current($GirlsFrontline)){
-            if($fruit_name['id'] == $id){
-                $level = strlen($fruit_name['level']);
-                $str = ($level)/3;
+        $GirlsFrontline = json_decode(file_get_contents($minifun),true);
+        
+        $str=null;
+        
+        if(empty($str)){
+            foreach ($GirlsFrontline as $value){
+                if($value['id'] == $id){
+                    $str = strlen($value["level"])/3;
+                }
             }
-            next($GirlsFrontline);
         }
+        
         $str = !empty($str) ? $str : 0;
 
         return $str;
@@ -457,7 +473,7 @@ class GirlsFrontline{
 
     public static function Time($time){
         /***
-        Version: 2.5.0
+        Version: 2.6.0
         Author: 夜樱
         Protocol: GirlsFrontline::Time()
         ***/
@@ -467,12 +483,10 @@ class GirlsFrontline{
         }
         
         $minifun_g = "https://raw.githubusercontent.com/DeachSword/MiniFun/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%B7%9A/TimeGuns";
-        @$GirlsFrontline=json_decode(file_get_contents("TimeGuns"),true);
-        $GirlsFrontline = !empty($GirlsFrontline) ? $GirlsFrontline : json_decode(file_get_contents($minifun_g),true);
+        $GirlsFrontline = json_decode(file_get_contents($minifun_g),true);
         
         $minifun_f = "https://raw.githubusercontent.com/DeachSword/MiniFun/%E5%B0%91%E5%A5%B3%E5%89%8D%E7%B7%9A/Fairy";
-        @$Fairy=json_decode(file_get_contents("Fairy"),true);
-        $Fairy = !empty($Fairy) ? $Fairy : json_decode(file_get_contents($minifun_f),true);
+        $Fairy = json_decode(file_get_contents($minifun_f),true);
 
         if(!empty($GirlsFrontline[$time])){
             $c=count($GirlsFrontline[$time]);
@@ -492,175 +506,193 @@ class GirlsFrontline{
         return $str;
     }
 
-    public static function MakeGuns($manpower = 30, $rations = 30, $ammunition = 30, $components = 30, $num = 1){
+    public static function MakeGuns($manpower = 30, $rations = 30, $ammunition = 30, $components = 30, $core=0,$num = 1,$key=null){
         /***
-        Version: 2.0.1
+        Version: 3.2.0
         Author: 隱歿
             Revise: 夜樱
-            Version: 2.0.2
+                Version: 2.0.2
+            Revise: DeachSword
+                Version: 3.1.2
         Protocol: GirlsFrontline::MakeGuns()
         ***/
-        //@$GirlsFrontline=json_decode(file_get_contents("./Gunslist"),true);
 
-        $manpower = $manpower<='999'&&$manpower>='30' ? $manpower : Null;
-        $rations = $rations<=999&&$rations>=30 ? $rations : Null;
-        $ammunition = $ammunition<=999&&$ammunition>=30 ? $ammunition : Null;
-        $components = $components<=999&&$components>=30 ? $components : Null;
-
-        if(!empty($manpower&&$rations&&$ammunition&&$components)){
-            $probability = array(0, 0, 70, 35, 10, 3);
-            $R = $manpower + $rations + $ammunition + $components;
-            if($manpower >= 30 && $rations >= 30 && $ammunition >= 30 && $components >= 30){
-                $str = array(
-                    "16","17","18","21","22","24","25","26","27","31","32","33","92","93","94"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    //$girl = self::Name($str[$a]);
-                    //$girls[$a] = $girl;
-                    /* Allowed memory size */
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                }
+        $R = $manpower + $rations + $ammunition + $components;
+        
+        if($R < 4000){
+            $manpower = $manpower <= 999 && $manpower >= 30 ? $manpower : Null;
+            $rations = $rations <= 999 && $rations >= 30 ? $rations : Null;
+            $ammunition = $ammunition <= 999 && $ammunition >= 30 ? $ammunition : Null;
+            $components = $components <= 999 && $components >= 30 ? $components : Null;
+            $core = "0";
+        }else{
+            $manpower = $manpower <= 9999 && $manpower >= 1000 ? $manpower : Null;
+            $rations = $rations <= 9999 && $rations >= 1000 ? $rations : Null;
+            $ammunition = $ammunition <= 9999 && $ammunition >= 1000 ? $ammunition : Null;
+            $components = $components <= 9999 && $components >= 1000 ? $components : Null;
+            if($core == 0){
+                $core = 1;
+            }elseif($core > 3 || $core < 0){
+                return "重造檔數只能在1~3之間喔~";
             }
-            if($manpower >= 30 && $rations >= 400 && $ammunition >= 400 && $components >= 30){
-                $str = array(
-                    "64","72",
-                    "62","106","129","130"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($manpower >= 600 && $rations >= 600 && $ammunition >= 100 && $components >= 400){
-                $str = array(
-                    "85",
-                    "112"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($manpower >= 400 && $rations >= 30 && $ammunition >= 400 && $components >= 30){
-                $str = array(
-                    "95",
-                    "46","50","128"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($manpower >= 400 && $rations >= 600 && $ammunition >= 30 && $components >= 300){
-                $str = array(
-                    "81","82","87","110","111",
-                    "77","80","86","89",
-                    "75","78","88","121",
-                    "109","125"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($manpower >= 300 && $rations >= 30 && $ammunition >= 300 && $components >= 30){
-                $str = array(
-                    "40","41","47","51","52",
-                    "34","37","44",
-                    "36","39","42","43",
-                    "48","53"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($manpower >= 400 && $rations >= 400 && $ammunition >= 30 && $components >= 30){
-                $str = array(
-                    "29",
-                    "23","101","102","103",
-                    "20","104","115","127","135"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($R >= 800){
-                $str = array(
-                    "63","68","71","74","107",
-                    "58","61","70","145",
-                    "60","66","69","118",
-                    "65","122"
-                );
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
-                }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
-                }
-            }
-            if($R <= 920){
-                if($manpower >= 130 && $rations >= 130 && $ammunition >= 130 && $components >= 30){
-                    //7 97 114 183
-                    $str = array(
-                    "1","2","3","5","6","7","8","9","10","11","12","13","14","90","91","96","97","99","100","114","123","139","141","168","183"
-                );
+        }
+        
+        if(!empty($manpower && $rations && $ammunition && $components)){
+            if($manpower != 416 && $rations != 416 && $ammunition != 416 && $components != 416){
+                if($core == 0){
+                    $probability = array(0, 0, 60, 27, 10, 3);
+                    $ar = ($rations >= 400 && $ammunition >= 400) ? true : false;
+                    $smg = $manpower >= 400 && $rations >= 400 ? true : false;
+                    $rf = $manpower >= 300 && $ammunition >= 300 ? true : false;
+                    $rfs = $manpower >= 400 && $ammunition >= 400 ? true : false;
+                    $mg = $manpower >= 400 && $rations >= 600 && $components >= 300 ? true : false;
+                    $mgs = $manpower >= 600 && $rations >= 600 && $ammunition >= 100 && $components >= 400 ? true : false;
                 }else{
-                    $str = array(
-                    "1","2","3","5","6","8","9","10","11","12","13","14","90","91","96","99","100","123","139","141","168"
-                );
+                    $probability = array(0, 0, 0, 40, 45, 15);
+                    $ar = ($rations >= 4000 && $ammunition >= 4000) ? true : false;
+                    $smg = $manpower >= 4000 && $rations >= 4000 ? true : false;
+                    $rf = $manpower >= 3000 && $ammunition >= 3000 ? true : false;
+                    $rfs = $manpower >= 4000 && $ammunition >= 4000 ? true : false;
+                    $mg = $manpower >= 4000 && $rations >= 6000 && $components >= 3000 ? true : false;
+                    $mgs = $manpower >= 6000 && $rations >= 6000 && $components >= 4000 ? true : false;
+                    if($core == 1){
+                        $probability = array(0, 0, 0, 40, 45, 15);
+                    }elseif($core == 2){
+                        $probability = array(0, 0, 0, 20, 60, 20);
+                    }elseif($core == 3){
+                        $probability = array(0, 0, 0, 0, 75, 25);
+                    }
                 }
-                for($a = 0; $a < count($str); $a++){
-                    $level = self::GirlLevel($str[$a]);
-                    $levels[$a] = $probability[$level];
+                
+                $R = $manpower + $rations + $ammunition + $components;
+                $L = $manpower."/".$rations."/".$ammunition."/".$components."/".$core;
+                $str=array();
+
+                if($mode=="n"){
+                    $strs = array(
+                    "16","17","18","21","22","24","25","26","27","31","32","33","92","93","94"
+                    );
+                    $str = array_merge($str,$strs);
                 }
-                if(count($levels) == count($str)){
-                    $guns[] = MiniFun::Probability($levels, $str, count($str), 1, 1);
-                    
+                if($ar){
+                    $strs = array(
+                        "64","72",
+                        "62","106","129","130"
+                    );
+                    $str = array_merge($str,$strs);
                 }
-            }
-            $g = count($guns) - 1;
-            $gun = rand(0, $g);
-            $gun_name = self::Name($guns[$g], true);
-            if($manpower == 416 && $rations == 416 && $ammunition == 416 && $components == 416){
-                $gun_name = self::Name(65, true);
+                if($mgs){
+                    $strs = array(
+                        "85",
+                        "112"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($rfs){
+                    $strs = array(
+                        "95",
+                        "46","50","128"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($mg){
+                    $strs = array(
+                        "81","82","87","110","111",
+                        "77","80","86","89",
+                        "75","78","88","121",
+                        "109","125"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($rf){
+                    $strs = array(
+                        "40","41","47","51","52",
+                        "34","37","44",
+                        "36","39","42","43",
+                        "48","53"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($manpower >= 6000 && $ammunition >= 6000){
+                    $strs = array(
+                        "152","154","158","159","190",
+                        "153","155","156","162","189",
+                        "151","157","160","188"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($smg){
+                    $strs = array(
+                        "29",
+                        "23","101","103",
+                        "20","104","115","127","135"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($R >= 800){
+                    $strs = array(
+                        "63","68","71","74","107",
+                        "58","61","70","145",
+                        "60","66","69","118",
+                        "65","122"
+                    );
+                    $str = array_merge($str,$strs);
+                }
+                if($R <= 920){
+                    if($manpower >= 130 && $rations >= 130 && $ammunition >= 130){
+                        //7 97 114 183
+                        $strs = array(
+                            "1","2","3","5","6","7","8","9","10","11","12","13","14","90","91","96","97","99","100","114","123","139","141","168","183"
+                        );
+                    }else{
+                        $strs = array(
+                            "1","2","3","5","6","8","9","10","11","12","13","14","90","91","96","99","100","123","139","141","168"
+                        );
+                    }
+                    $str = array_merge($str,$strs);
+                }
+
+                if(count($str) > 0){
+                    $debuga = date("YmdHis");
+                    $num = $num > 10 ? 10 : $num;
+                    for($a = 0; $a < count($str); $a++){
+                        $level = self::GirlLevel($str[$a]);
+                        $levels[$a] = $probability[$level];
+                    }
+                    if(count($levels) == count($str)){
+                        $guns = MiniFun::Probability($levels, $str, count($str), $num, 1);
+                    }
+                }
+                $debugb = date("YmdHis");
+                @$db = Github::content("DeachSword","MiniFun","GF_MakeGuns","Database",$key);
+                $gun = explode("\n",$guns);
+                $h = ">>";
+                if(empty($db)){
+                    @$db = json_decode(file_get_contents("https://raw.githubusercontent.com/DeachSword/MiniFun/Database/GF_MakeGuns"),true);
+                    $h = ">X";
+                }
+                for($g = 0; $g < count($gun); $g++){
+                    $db[$L]["count"]++;
+                    $db[$L]["make"][$gun[$g]]++;
+                    if($db[$L]["count"] >= 15){
+                        $seed=$h.round(100*($db[$L]["make"][$gun[$g]]/$db[$L]["count"]),2)."%";
+                    }else{
+                        $seed=$h."ネロ";
+                    }
+                    $gn = self::Name($gun[$g], true). $seed;
+                    $gun_name = !empty($gun_name) ? $gun_name."\n".$gn : $gn;
+                }
+                $sha = Github::sha("DeachSword","MiniFun","GF_MakeGuns","Database",$key);
+                $res = Github::PUT("DeachSword","MiniFun","GF_MakeGuns","Database",json_encode($db),$sha,$key);
+            }else{
+                 $gun_name = self::Name(65, true).">>♥%";
             }
             $reply = $gun_name;
         }else{
-            $reply = "資源必須在30~999之間喔( *｀ω´)";
+            $reply = "資源設定有誤( *｀ω´)\n\n普造: 30~999\n重造: 1000~9999";
         }
-
+        $debug = $debugb - $debuga;
+        
         return $reply;
     }
 /****
@@ -670,7 +702,6 @@ class GirlsFrontline{
 ****/ 
 }
 class Minecraft{
-
 
     public function Skin($user, $mode=2){
         /***
@@ -756,6 +787,97 @@ class Minecraft{
             echo "404 Not Found";
             return null;
         }
+    }
+/****
+* E *
+* N *
+* D *
+****/ 
+}
+
+class Github{
+    
+    public function PUT($user, $git, $fn, $branch, $str, $sha = null, $key = null, $upmessage = "Data update."){
+        /***
+        Version: 1.0.0
+        Author: DeachSword
+        Protocol: Github::PUT()
+        ***/
+        
+        $url = "https://api.github.com/repos/".$user."/".$git."/contents/".$fn."?ref=".$branch."&access_token=". $key;
+        
+        $data["message"] = $upmessage;
+        //$data["committer"]["name"] = "DeachSword";
+        //$data["committer"]["email"] = null;
+        $data["content"] = base64_encode($str);
+        $data["branch"] = $branch;
+        
+        if(!empty($sha)){
+            $data["sha"] = $sha;
+        }
+        
+        $ch = curl_init();
+        
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("User-Agent: Awesome-Octocat-App","Content-Type: apllication/json"));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($ch,CURLOPT_BINARYTRANSFER,true);
+        curl_setopt($ch,CURLOPT_CUSTOMREQUEST,"PUT");
+        curl_setopt($ch,CURLOPT_POSTFIELDS,json_encode($data));
+        
+        $res = curl_exec($ch);
+        
+        curl_close($ch);
+        
+        return $res;
+    }
+
+    public function sha($user, $git, $fn, $branch, $key){
+        /***
+        Version: 1.0.0
+        Author: DeachSword
+        Protocol: Github::PUT()
+        ***/
+
+        $url="https://api.github.com/repos/".$user."/".$git."/contents/".$fn."?ref=".$branch."&access_token=". $key;
+        
+        $ch = curl_init();
+        
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("User-Agent: Awesome-Octocat-App"));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($ch,CURLOPT_BINARYTRANSFER,true);
+        curl_setopt($ch,CURLOPT_CUSTOMREQUEST,"GET");
+        
+        $res=curl_exec($ch);
+        
+        curl_close($ch);
+        
+        return json_decode($res,true)["sha"];
+    }
+
+    public function content($user, $git, $fn, $branch, $key){
+        /***
+        Version: 1.0.0
+        Author: DeachSword
+        Protocol: Github::PUT()
+        ***/
+        
+        $url="https://api.github.com/repos/".$user."/".$git."/contents/".$fn."?ref=".$branch."&access_token=". $key;
+    
+        $ch=curl_init();
+
+        curl_setopt($ch,CURLOPT_URL,$url);
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("User-Agent: Awesome-Octocat-App"));
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($ch,CURLOPT_BINARYTRANSFER,true);
+        curl_setopt($ch,CURLOPT_CUSTOMREQUEST,"GET");
+
+        $res=curl_exec($ch);
+
+        curl_close($ch);
+
+        return json_decode(base64_decode(json_decode($res,true)["content"]),true);
     }
 /****
 * E *
